@@ -1,3 +1,5 @@
+
+### Part 1: Import necessary packages #######################################################
 import streamlit as st
 import yfinance as yf
 import pandas as pd
@@ -5,12 +7,7 @@ import plotly.express as px
 import datetime
 import yfinance as yf
 
-tickerfile="nasdaq_screener.csv"
-
-#def get_tickers(tickerfile):
-tickerdf=pd.read_csv(tickerfile)
-#    return tickerdf["Symbol"].to_list(), tickerdf["Name"].to_list()
-
+### Part 2: Define functions, which are applied by the 3 pages of the web-app ################
 def get_stock_data(symbol, period="1y"):
     stock = yf.Ticker(symbol)
     df = stock.history(period=period)
@@ -24,7 +21,7 @@ def plot_closing_data(df):
 
 def plot_multiple_closing_data(df):
     #st.line_chart(df['Close'], width=0, height=0, use_container_width=True)
-    fig = px.line(df, y=df.columns.to_list(), orientation='v', title="Closings")
+    fig = px.line(df, y=df.columns.to_list(), orientation='v', title="Closings of Selected")
     fig.update_layout(showlegend=True, height=600)
     st.plotly_chart(fig)
 
@@ -42,16 +39,19 @@ def plot_moving_averages(df):
     fig.update_layout(showlegend=True, height=600)
     st.plotly_chart(fig)
 
-# Page 1:
+
+### Part 3: Define the functionality of the three different pages - for each page one Python-function #####
+
+###### Page 1: Search Ticker-Symbol of a company
 def search_ticker_symbol():
     st.subheader("Search Ticker Symbol")
     query = st.text_input("Enter Company Name", value="NVIDIA").lower()
     foundrows=tickerdf[tickerdf["Name"].str.lower().str.contains(query)]
-    st.dataframe(foundrows[["Symbol","Name","Industry"]])
-    #st.dataframe(foundrows)
+    #st.dataframe(foundrows[["Symbol","Name","Industry"]])
+    st.dataframe(foundrows)
     
 
-# Page 2:
+###### Page 2: Analyse stock-development of a single company
 def get_single_ticker_data():
     st.subheader("Visualizing Stock Data")
     
@@ -91,7 +91,8 @@ def get_single_ticker_data():
     st.subheader("Closing Price and Moving Averages")
     plot_moving_averages(df)
 
-# Page 3:
+###### Page 3: Compare Stock development of a set of companies
+
 def select_and_compare():
     selection=tickerdf.copy()
     selection["Relevant"]=[False for i in selection.index]
@@ -113,11 +114,20 @@ def select_and_compare():
     st.dataframe(closings)
         
 
+### Part 4: The main programm
 
+###### a. Read the file, which contains the mapping of company names to ticker-symbols into a pandas datafram
+tickerfile="nasdaq_screener.csv"
 
+#def get_tickers(tickerfile):
+tickerdf=pd.read_csv(tickerfile)
+#    return tickerdf["Symbol"].to_list(), tickerdf["Name"].to_list()
+
+###### b. Define the Navigation in the sidebar
 st.sidebar.title("Navigation")
 page = st.sidebar.radio("Go to", ["Symbol Search", "Ticker Data","Compare"])
 
+###### c. Depending on the selected page, execute the corresponding function, which defines the functionality of the page
 if page == "Symbol Search":
     search_ticker_symbol()
 elif page == "Ticker Data":

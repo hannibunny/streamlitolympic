@@ -48,10 +48,10 @@ def visualize_data(w,lower=0.1,upper=5,res=0.01,k=0.1):
     fig.add_trace(go.Scatter(x=x, y=y3,mode='markers', marker = dict(color = 'brown',symbol="circle-dot"),name="Data 3"),row=2, col=1)
     fig.add_trace(go.Scatter(x=x, y=y4,mode='markers', marker = dict(color = 'orange',symbol="circle-dot"),name="Data 4"),row=2, col=2)
     
-    fig.update_xaxes(title_text="x", row=1, col=1)
-    fig.update_xaxes(title_text="x", row=1, col=2)
-    fig.update_xaxes(title_text="x", row=2, col=1)
-    fig.update_xaxes(title_text="x", row=2, col=2)
+    fig.update_xaxes(title_text="x", range=[lower-0.5,upper+0.5],row=1, col=1)
+    fig.update_xaxes(title_text="x", range=[lower-0.5,upper+0.5],row=1, col=2)
+    fig.update_xaxes(title_text="x", range=[lower-0.5,upper+0.5],row=2, col=1)
+    fig.update_xaxes(title_text="x", range=[lower-0.5,upper+0.5],row=2, col=2)
     
     fig.update_yaxes(title_text="y", row=1, col=1)
     fig.update_yaxes(title_text="y", row=1, col=2)

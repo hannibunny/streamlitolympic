@@ -10,7 +10,8 @@ from plotly.subplots import make_subplots
 
 
 def visualize_data(w,lower=0.1,upper=5,res=0.01,k=0.15):
-    st.markdown(f"**4 different sets of Training Data**")
+    st.markdown(f"**4 different sets of Training Data**:") 
+    st.html("Here, in each set the input is 1-dimensional (value of x) and the target-output is y. From the given Input/output-pairs (x,y) the algorithm must learn a function y=f(x)")
     np.random.seed(123)
     x=np.arange(lower,upper,res)
     ###### 1. Linear
@@ -135,7 +136,8 @@ def is_inside_ellipse(x, y,x0,y0,a,b):
 
 def visualize_data_class(w,lower=0,upper=5,n_points=80):
     n_partition = n_points // 2
-    st.markdown(f"**4 different sets of Training Data**")
+    st.markdown(f"**4 different sets of Training Data**:") 
+    st.html("Here, in each set the input is 2-dimensional (x<sub>1</sub>,x<sub>2</sub>) and the target-output y is the label which is indicated by the marker color. From the given input/output-pairs the algorithm must learn a function, which maps each input to a class: y=f(x<sub>1</sub>,x<sub>2</sub>)")
     np.random.seed(123)
 
     # Lineare Trennungsfunktion: y = 0.5x + 1
@@ -233,15 +235,15 @@ def visualize_data_class(w,lower=0,upper=5,n_points=80):
      
     
     
-    fig.update_xaxes(title_text="x", range=[lower-0.5,upper+0.5],row=1, col=1)
-    fig.update_xaxes(title_text="x", range=[lower-0.5,upper+0.5],row=1, col=2)
-    fig.update_xaxes(title_text="x", range=[lower-0.5,upper+0.5],row=2, col=1)
-    fig.update_xaxes(title_text="x", range=[lower-0.5,upper+0.5],row=2, col=2)
+    fig.update_xaxes(title_text="x<sub>1</sub>", range=[lower-0.5,upper+0.5],row=1, col=1)
+    fig.update_xaxes(title_text="x<sub>1</sub>", range=[lower-0.5,upper+0.5],row=1, col=2)
+    fig.update_xaxes(title_text="x<sub>1</sub>", range=[lower-0.5,upper+0.5],row=2, col=1)
+    fig.update_xaxes(title_text="x<sub>1</sub>", range=[lower-0.5,upper+0.5],row=2, col=2)
     
-    fig.update_yaxes(title_text="y", row=1, col=1)
-    fig.update_yaxes(title_text="y", row=1, col=2)
-    fig.update_yaxes(title_text="y", row=2, col=1)
-    fig.update_yaxes(title_text="y", row=2, col=2)
+    fig.update_yaxes(title_text="x<sub>2</sub>", row=1, col=1)
+    fig.update_yaxes(title_text="x<sub>2</sub>", row=1, col=2)
+    fig.update_yaxes(title_text="x<sub>2</sub>", row=2, col=1)
+    fig.update_yaxes(title_text="x<sub>2</sub>", row=2, col=2)
     fig.update_layout(height=700,xaxis_title="x",title="Training Data")
 
     st.plotly_chart(fig)
@@ -250,7 +252,7 @@ def visualize_data_class(w,lower=0,upper=5,n_points=80):
 
 def visualize_models_class(w,lower=0,upper=5,n_points=80):
     n_partition = n_points // 2
-    st.markdown(f"**4 different sets of Training Data**")
+    st.markdown(f"**Models, learned from training data**")
     np.random.seed(123)
 
     # Lineare Trennungsfunktion: y = 0.5x + 1
@@ -371,16 +373,16 @@ def visualize_models_class(w,lower=0,upper=5,n_points=80):
          
     
     
-    fig.update_xaxes(title_text="x", range=[lower-0.5,upper+0.5],row=1, col=1)
-    fig.update_xaxes(title_text="x", range=[lower-0.5,upper+0.5],row=1, col=2)
-    fig.update_xaxes(title_text="x", range=[lower-0.5,upper+0.5],row=2, col=1)
-    fig.update_xaxes(title_text="x", range=[lower-0.5,upper+0.5],row=2, col=2)
+    fig.update_xaxes(title_text="x<sub>1</sub>", range=[lower-0.5,upper+0.5],row=1, col=1)
+    fig.update_xaxes(title_text="x<sub>1</sub>", range=[lower-0.5,upper+0.5],row=1, col=2)
+    fig.update_xaxes(title_text="x<sub>1</sub>", range=[lower-0.5,upper+0.5],row=2, col=1)
+    fig.update_xaxes(title_text="x<sub>1</sub>", range=[lower-0.5,upper+0.5],row=2, col=2)
     
-    fig.update_yaxes(title_text="y", row=1, col=1)
-    fig.update_yaxes(title_text="y", row=1, col=2)
-    fig.update_yaxes(title_text="y", row=2, col=1)
-    fig.update_yaxes(title_text="y", row=2, col=2)
-    fig.update_layout(height=700,xaxis_title="x",title="Training Data")
+    fig.update_yaxes(title_text="x<sub>2</sub>", row=1, col=1)
+    fig.update_yaxes(title_text="x<sub>2</sub>", row=1, col=2)
+    fig.update_yaxes(title_text="x<sub>2</sub>", row=2, col=1)
+    fig.update_yaxes(title_text="x<sub>2</sub>", row=2, col=2)
+    fig.update_layout(height=700,xaxis_title="x",title="Training Data and learned models")
 
     st.plotly_chart(fig)
 

@@ -6,14 +6,16 @@ import plotly.express as px
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from scipy.stats import gaussian_kde
 
 
 
-def visualize_data(w,lower=0.1,upper=5,res=0.01,k=0.15):
+def visualize_data(w,lower=0.1,upper=5,res=0.01,k=0.15,n_points=80):
     st.markdown(f"**4 different sets of Training Data**:") 
     st.html("Here, in each set the input is 1-dimensional (value of x) and the target-output is y. From the given Input/output-pairs (x,y) the algorithm must learn a function y=f(x)")
     np.random.seed(123)
-    x=np.arange(lower,upper,res)
+    #x=np.arange(lower,upper,res)
+    x = np.random.uniform(lower, upper, n_points)
     ###### 1. Linear
     w0=w["lin"][0]
     w1=w["lin"][1]
@@ -57,10 +59,11 @@ def visualize_data(w,lower=0.1,upper=5,res=0.01,k=0.15):
 
     st.plotly_chart(fig)
 
-def visualize_models(w,lower=0.1,upper=5,res=0.01,k=0.1):
+def visualize_models(w,lower=0.1,upper=5,res=0.01,k=0.1,n_points=80):
     st.markdown(f"**Models (functions) which have been learned from the given data**")
     np.random.seed(123)
-    x=np.arange(lower,upper,res)
+    x = np.random.uniform(lower, upper, n_points)
+    #x=np.arange(lower,upper,res)
     xm=np.arange(lower-0.5,upper+0.5,res)
     ###### 1. Linear
     w0=w["lin"][0]
@@ -249,10 +252,45 @@ def visualize_data_class(w,lower=0,upper=5,n_points=80):
     st.plotly_chart(fig)
 
 
+def draw_generative_classifier(x1,y1,x2,y2,fig,row=1,col=1):
+    # Erstellen der KDE für beide Partitionen
+    kde1 = gaussian_kde(np.vstack([x1, y1]))
+    kde2 = gaussian_kde(np.vstack([x2, y2]))
 
-def visualize_models_class(w,lower=0,upper=5,n_points=80):
+    # Generiere ein Gitter, um die Dichte zu berechnen
+    x_grid = np.linspace(0, 5, 100)
+    y_grid = np.linspace(0, 5, 100)
+    X, Y = np.meshgrid(x_grid, y_grid)
+
+    # Dichte berechnen
+    Z1 = kde1(np.vstack([X.ravel(), Y.ravel()])).reshape(X.shape)
+    Z2 = kde2(np.vstack([X.ravel(), Y.ravel()])).reshape(X.shape)
+    D=Z2-Z1
+    #H=np.sign(D)
+
+
+    # Transparentes Contour-Plot der Dichte der ersten Partition
+    fig.add_trace(go.Contour(
+        x=x_grid,
+        y=y_grid,
+        z=D,
+        #name="Learned Decision Boundary",
+        #showlegend=True,
+        showscale=False,
+        opacity=0.7,
+        ncontours=1,
+        line_width=2,
+        #colorscale='rainbow',
+        #contours=dict(showlines=True)
+        contours=dict(
+            coloring='heatmap',
+            showlabels=False,
+            )
+        ),row=row,col=col)
+
+def visualize_models_class(w,lower=0,upper=5,n_points=80,generative=False):
     n_partition = n_points // 2
-    st.markdown(f"**Models, learned from training data**")
+    #st.markdown(f"**Models, learned from training data**")
     np.random.seed(123)
 
     # Lineare Trennungsfunktion: y = 0.5x + 1
@@ -307,7 +345,6 @@ def visualize_models_class(w,lower=0,upper=5,n_points=80):
     x52, y52 = x52[mask2][:n_partition], y52[mask2][:n_partition]  # Auf 40 Punkte beschränken
    
 
-
     # Partition 1: Punkte innerhalb der Ellipse
     x0=w["ell"][0]
     y0=w["ell"][1]
@@ -332,46 +369,59 @@ def visualize_models_class(w,lower=0,upper=5,n_points=80):
                   row=1, col=1)
     fig.add_trace(go.Scatter(x=x2, y=y2,mode='markers', marker = dict(color = 'red',symbol="circle-dot",opacity=0.5),name="Data 1, Class 2"),
                   row=1, col=1)
-    # Zeichne die Trennlinie y = 0.5x + 1
-    x_line = np.linspace(lower, upper, 100)
-    y_line =  w["lin"][1] * x_line + w["lin"][0]
-    fig.add_trace(go.Scatter(x=x_line, y=y_line, mode='lines', name='Learned', line=dict(color='red')),row=1, col=1)
 
-    
+
 
     fig.add_trace(go.Scatter(x=x31, y=y31,mode='markers', marker = dict(color = 'orange',symbol="circle-dot",opacity=0.5),name="Data 2, Class 1"),
                   row=1, col=2)
     fig.add_trace(go.Scatter(x=x32, y=y32,mode='markers', marker = dict(color = 'purple',symbol="circle-dot",opacity=0.5),name="Data 2, Class 2"),
                   row=1, col=2)
-    # Zeichne das Trennungspolynom y = 0.1x^3 - 0.5x^2 + x + 1
-    x_line = np.linspace(lower, upper, 100)
-    y_line = w["p3"][0] + w["p3"][1]*x_line+w["p3"][2]*x_line**2+w["p3"][3]*x_line**3 
-    fig.add_trace(go.Scatter(x=x_line, y=y_line, mode='lines', name='Learned', line=dict(color='red')),row=1, col=2)
+    
 
 
     fig.add_trace(go.Scatter(x=x51, y=y51,mode='markers', marker = dict(color = 'green',symbol="circle-dot",opacity=0.5),name="Data 3, Class 1"),
                   row=2, col=1)
     fig.add_trace(go.Scatter(x=x52, y=y52,mode='markers', marker = dict(color = 'darkviolet',symbol="circle-dot",opacity=0.5),name="Data 3, Class 2"),
                   row=2, col=1)
-    # Zeichne das Trennungspolynom y = 0.1x^3 - 0.5x^2 + x + 1
-    x_line = np.linspace(lower, upper-0.5, 100)
-    y_line = w["p5"][0] + w["p5"][1]*x_line+w["p5"][2]*x_line**2+w["p5"][3]*x_line**3+w["p5"][4]*x_line**4+w["p5"][5]*x_line**5 
-    fig.add_trace(go.Scatter(x=x_line, y=y_line, mode='lines', name='Learned', line=dict(color='red')),row=2, col=1)
-
-
-
+    
 
     fig.add_trace(go.Scatter(x=xe1, y=ye1,mode='markers', marker = dict(color = 'magenta',symbol="circle-dot",opacity=0.5),name="Data 4, Class 1"),
                   row=2, col=2)
     fig.add_trace(go.Scatter(x=xe2, y=ye2,mode='markers', marker = dict(color = 'brown',symbol="circle-dot",opacity=0.5),name="Data 4, Class 2"),
                   row=2, col=2)
-    # Zeichne die Ellipse
-    theta = np.linspace(lower, 2 * np.pi, 100)
-    x_ellipse = x0 + a * np.cos(theta)
-    y_ellipse = y0 + b * np.sin(theta)
-    fig.add_trace(go.Scatter(x=x_ellipse, y=y_ellipse, mode='lines', name='Learned', line=dict(color='red')),row=2, col=2)
-         
     
+         
+    if not generative:
+        # Zeichne die Trennlinie y = 0.5x + 1
+        x_line = np.linspace(lower, upper, 100)
+        y_line =  w["lin"][1] * x_line + w["lin"][0]
+        fig.add_trace(go.Scatter(x=x_line, y=y_line, mode='lines', name='Learned', line=dict(color='red')),row=1, col=1)
+
+        # Zeichne das Trennungspolynom y = 0.1x^3 - 0.5x^2 + x + 1
+        x_line = np.linspace(lower, upper, 100)
+        y_line = w["p3"][0] + w["p3"][1]*x_line+w["p3"][2]*x_line**2+w["p3"][3]*x_line**3 
+        fig.add_trace(go.Scatter(x=x_line, y=y_line, mode='lines', name='Learned', line=dict(color='red')),row=1, col=2)
+
+        # Zeichne das Trennungspolynom y = 0.1x^3 - 0.5x^2 + x + 1
+        x_line = np.linspace(lower, upper-0.5, 100)
+        y_line = w["p5"][0] + w["p5"][1]*x_line+w["p5"][2]*x_line**2+w["p5"][3]*x_line**3+w["p5"][4]*x_line**4+w["p5"][5]*x_line**5 
+        fig.add_trace(go.Scatter(x=x_line, y=y_line, mode='lines', name='Learned', line=dict(color='red')),row=2, col=1)
+
+        # Zeichne die Ellipse
+        theta = np.linspace(lower, 2 * np.pi, 100)
+        x_ellipse = x0 + a * np.cos(theta)
+        y_ellipse = y0 + b * np.sin(theta)
+        fig.add_trace(go.Scatter(x=x_ellipse, y=y_ellipse, mode='lines', name='Learned', line=dict(color='red')),row=2, col=2) 
+    
+    
+    else:
+        draw_generative_classifier(x1,y1,x2,y2,fig=fig,row=1,col=1)
+        draw_generative_classifier(x31,y31,x32,y32,fig=fig,row=1,col=2)
+        draw_generative_classifier(x51,y51,x52,y52,fig=fig,row=2,col=1)
+        draw_generative_classifier(xe1,ye1,xe2,ye2,fig=fig,row=2,col=2)
+
+
+        
     
     fig.update_xaxes(title_text="x<sub>1</sub>", range=[lower-0.5,upper+0.5],row=1, col=1)
     fig.update_xaxes(title_text="x<sub>1</sub>", range=[lower-0.5,upper+0.5],row=1, col=2)
@@ -387,11 +437,22 @@ def visualize_models_class(w,lower=0,upper=5,n_points=80):
     st.plotly_chart(fig)
 
 
+
+
+
+
+
+
+
+
+
 def regression():
     weights={"lin":[-1,0.5],
        "pol":[0.1,0.3,0.1,-0.03],
        "log":[0.5,1.0],
        "sin":[1,0.2,-0.5,0.7]}
+
+    samples = st.slider("How much training data?", 20, 200, 100)
     
     show = st.radio(
         "Select One",
@@ -400,9 +461,9 @@ def regression():
     )
     
     if show == "Show Data":
-        visualize_data(w=weights)
+        visualize_data(w=weights,n_points=samples)
     else:
-        visualize_models(w=weights)
+        visualize_models(w=weights,n_points=samples)
 
 def classification():
     weights={"lin":[0.5,1],
@@ -414,17 +475,24 @@ def classification():
     # a, b = 2.0, 1.5    # Halbachsen der Ellipse
     
     
+    samples = st.slider("How much training data per class?", 20, 200, 100)
+    
     show = st.radio(
         "Select One",
-        ["Show Data", "Show trained models"],
+        ["Show Data", "Show trained discriminative models", "Show trained generative models"],
         index=0,
     )
     
     if show == "Show Data":
-        visualize_data_class(w=weights)
+        visualize_data_class(w=weights,n_points=samples)
+    elif show=="Show trained discriminative models":
+        visualize_models_class(w=weights,n_points=samples,generative=False)
     else:
-        visualize_models_class(w=weights)
-        
+        visualize_models_class(w=weights,n_points=samples,generative=True)
+
+
+
+
 
 ###### Main Program #######
 ###### b. Define the Navigation in the sidebar
